@@ -34,6 +34,7 @@
     "apollo-server-azure-functions": "file:packages/apollo-server-azure-functions",
     "apollo-server-cache-memcached": "file:packages/apollo-server-cache-memcached",
     "apollo-server-cache-redis": "file:packages/apollo-server-cache-redis",
+    "apollo-server-cache-snappy-redis": "file:packages/apollo-server-cache-snappy-redis",
     "apollo-server-caching": "file:packages/apollo-server-caching",
     "apollo-server-cloud-functions": "file:packages/apollo-server-cloud-functions",
     "apollo-server-cloudflare": "file:packages/apollo-server-cloudflare",

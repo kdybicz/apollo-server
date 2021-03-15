@@ -30,11 +30,9 @@ export class RedisCache implements TestableKeyValueCache<string> {
     options?: KeyValueCacheSetOptions,
   ): Promise<void> {
     const { ttl } = Object.assign({}, this.defaultSetOptions, options);
-
     if (value.length > this.minimumCompressionSize) {
       value = 'snappy:' + snappy.compressSync(value).toString();
     }
-
     if (typeof ttl === 'number') {
       await this.client.set(key, value, 'EX', ttl);
     } else {
@@ -50,7 +48,6 @@ export class RedisCache implements TestableKeyValueCache<string> {
       if (reply !== undefined && reply.startsWith('snappy:')) {
         return snappy.uncompressSync(Buffer.from(reply.slice(7)), { asBuffer: false }) as string;
       }
-
       return reply;
     }
     return;

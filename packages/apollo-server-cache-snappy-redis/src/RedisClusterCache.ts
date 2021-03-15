@@ -5,12 +5,14 @@ import Redis, {
   Redis as RedisInstance,
 } from 'ioredis';
 import DataLoader from 'dataloader';
+import snappy from 'snappy';
 
 export class RedisClusterCache implements KeyValueCache {
   readonly client: any;
   readonly defaultSetOptions: KeyValueCacheSetOptions = {
     ttl: 300,
   };
+  private minimumCompressionSize = 262144;
 
   private loader: DataLoader<string, string | null>;
 
@@ -30,6 +32,9 @@ export class RedisClusterCache implements KeyValueCache {
     options?: KeyValueCacheSetOptions,
   ): Promise<void> {
     const { ttl } = Object.assign({}, this.defaultSetOptions, options);
+    if (data.length > this.minimumCompressionSize) {
+      data = 'snappy:' + snappy.compressSync(data).toString();
+    }
     if (typeof ttl === 'number') {
       await this.client.set(key, data, 'EX', ttl);
     } else {
@@ -43,6 +48,9 @@ export class RedisClusterCache implements KeyValueCache {
     const reply = await this.loader.load(key);
     // reply is null if key is not found
     if (reply !== null) {
+      if (reply !== undefined && reply.startsWith('snappy:')) {
+        return snappy.uncompressSync(Buffer.from(reply.slice(7)), { asBuffer: false }) as string;
+      }
       return reply;
     }
     return;
